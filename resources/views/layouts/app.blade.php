@@ -6,6 +6,7 @@
     <title>@yield('title', 'Dokumen') · Revita</title>
     <meta name="theme-color" content="#175b4b">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="{{ asset('js/document-items.js') }}" defer></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 </head>
 <body>

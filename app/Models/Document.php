@@ -39,6 +39,11 @@ class Document extends Model
         return $this->hasMany(DocumentPhoto::class)->orderBy('id');
     }
 
+    public function items(): HasMany
+    {
+        return $this->hasMany(DocumentItem::class)->orderBy('id');
+    }
+
     public function coverPhoto(): HasOne
     {
         return $this->hasOne(DocumentPhoto::class)->oldestOfMany();

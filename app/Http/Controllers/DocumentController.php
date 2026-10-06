@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DocumentRequest;
 use App\Models\Category;
 use App\Models\Document;
+use App\Models\DocumentItem;
 use App\Models\DocumentPhoto;
 use App\Support\VoucherNumber;
 use Illuminate\Http\RedirectResponse;
@@ -52,6 +53,7 @@ class DocumentController extends Controller
                 $document = Document::create(collect($data)->only(Document::EDITABLE_FIELDS)->all());
                 $removedPaths = [];
                 $this->syncReceiptImage($document, $data, $paths, $removedPaths);
+                $this->syncItems($document, $data, $paths, $removedPaths);
                 $this->addPhotos($document, $data['photos'] ?? [], $paths);
 
                 return $document;
@@ -66,12 +68,12 @@ class DocumentController extends Controller
 
     public function show(Document $document): View
     {
-        return view('documents.show', ['document' => $document->load('photos')]);
+        return view('documents.show', ['document' => $document->load('photos', 'items.photos')]);
     }
 
     public function edit(Document $document): View
     {
-        return view('documents.form', ['document' => $document->load('photos'), 'categories' => $this->categories()]);
+        return view('documents.form', ['document' => $document->load('photos', 'items.photos'), 'categories' => $this->categories()]);
     }
 
     public function update(DocumentRequest $request, Document $document): RedirectResponse
@@ -91,6 +93,7 @@ class DocumentController extends Controller
                 foreach ($data['existing'] ?? [] as $id => $attributes) {
                     $document->photos()->whereKey($id)->update(['caption' => $attributes['caption'] ?? '']);
                 }
+                $this->syncItems($document, $data, $paths, $removedPaths);
                 $this->addPhotos($document, $data['photos'] ?? [], $paths);
             });
         } catch (Throwable $exception) {
@@ -116,7 +119,7 @@ class DocumentController extends Controller
 
     public function print(Document $document): View
     {
-        return view('documents.print', ['document' => $document->load('photos')]);
+        return view('documents.print', ['document' => $document->load('photos', 'items.photos')]);
     }
 
     public function voucher(Document $document): View
@@ -178,7 +181,31 @@ class DocumentController extends Controller
         $document->save();
     }
 
-    private function addPhotos(Document $document, array $photos, array &$paths): void
+    private function syncItems(Document $document, array $data, array &$paths, array &$removedPaths): void
+    {
+        foreach ($document->items()->whereIn('id', $data['remove_items'] ?? [])->with('photos')->get() as $item) {
+            $removedPaths = array_merge($removedPaths, $item->photos->pluck('path')->all());
+            $item->delete();
+        }
+        foreach ($data['items'] ?? [] as $attributes) {
+            if ($attributes['id'] ?? null) {
+                $item = $document->items()->whereKey($attributes['id'])->firstOrFail();
+                $item->update(['name' => $attributes['name']]);
+            } else {
+                $item = $document->items()->create(['name' => $attributes['name']]);
+            }
+            foreach ($item->photos()->whereIn('id', $attributes['remove_photos'] ?? [])->get() as $photo) {
+                $removedPaths[] = $photo->path;
+                $photo->delete();
+            }
+            foreach ($attributes['existing'] ?? [] as $id => $photo) {
+                $item->photos()->whereKey($id)->update(['caption' => $photo['caption'] ?? '']);
+            }
+            $this->addPhotos($document, $attributes['photos'] ?? [], $paths, $item);
+        }
+    }
+
+    private function addPhotos(Document $document, array $photos, array &$paths, ?DocumentItem $item = null): void
     {
         foreach ($photos as $photo) {
             $path = $photo['file']->store('documents/'.$document->id, 'local');
@@ -186,7 +213,7 @@ class DocumentController extends Controller
                 throw new \RuntimeException('Foto gagal disimpan. Periksa izin folder storage.');
             }
             $paths[] = $path;
-            $document->photos()->create(['path' => $path, 'caption' => $photo['caption'] ?? '']);
+            $document->photos()->create(['path' => $path, 'caption' => $photo['caption'] ?? '', 'document_item_id' => $item?->id]);
         }
     }
 

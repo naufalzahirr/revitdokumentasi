@@ -12,14 +12,14 @@ class SharedDocumentController extends Controller
 {
     public function show(Document $document): Response
     {
-        return response()->view('documents.shared', ['document' => $document->load('photos')])
+        return response()->view('documents.shared', ['document' => $document->load('photos', 'items.photos')])
             ->header('Cache-Control', 'private, no-store')
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
     public function print(Document $document): Response
     {
-        return response()->view('documents.print', ['document' => $document->load('photos'), 'shared' => true])
+        return response()->view('documents.print', ['document' => $document->load('photos', 'items.photos'), 'shared' => true])
             ->header('Cache-Control', 'private, no-store')
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }

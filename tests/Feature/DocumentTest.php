@@ -22,7 +22,7 @@ class DocumentTest extends TestCase
     private function data(array $overrides = []): array
     {
         return array_replace([
-            'category' => 'Renovasi atap', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT/2026/001',
+            'category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT/2026/001',
             'photos' => [
                 ['file' => UploadedFile::fake()->image('atap.jpg'), 'caption' => 'Pemasangan rangka atap.'],
                 ['file' => UploadedFile::fake()->image('kelas.png'), 'caption' => 'Perbaikan ruang kelas.'],
@@ -40,7 +40,7 @@ class DocumentTest extends TestCase
     public function test_document_and_multiple_photos_are_saved_and_viewable(): void
     {
         $document = $this->createDocument();
-        $this->assertDatabaseHas('documents', ['category' => 'Renovasi atap', 'receipt_number' => 'NT/2026/001']);
+        $this->assertDatabaseHas('documents', ['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', 'receipt_number' => 'NT/2026/001']);
         $this->assertCount(2, $document->photos);
         foreach ($document->photos as $photo) {
             Storage::disk('local')->assertExists($photo->path);
@@ -86,7 +86,7 @@ class DocumentTest extends TestCase
         $document = $this->createDocument();
         [$keep, $remove] = $document->photos;
         $this->put(route('documents.update', $document), $this->data([
-            'category' => 'Pembangunan ruang kelas',
+            'category' => 'Pembangunan Baru - RPS Pengembangan Gim',
             'existing' => [$keep->id => ['caption' => 'Keterangan diperbarui.']],
             'remove_photos' => [$remove->id],
             'photos' => [['file' => UploadedFile::fake()->image('baru.webp'), 'caption' => 'Hasil pembangunan.']],
@@ -189,9 +189,9 @@ class DocumentTest extends TestCase
     public function test_search_category_filter_and_empty_result_work(): void
     {
         $this->createDocument();
-        $this->post(route('documents.store'), $this->data(['category' => 'Pengecatan bangunan', 'receipt_number' => 'CAT-002']))->assertSessionHasNoErrors();
+        $this->post(route('documents.store'), $this->data(['category' => 'Pengecatan Ruang Lainnya', 'receipt_number' => 'CAT-002']))->assertSessionHasNoErrors();
         $this->get(route('documents.index', ['q' => 'CAT-002']))->assertOk()->assertSee('CAT-002')->assertDontSee('NT/2026/001');
-        $this->get(route('documents.index', ['category' => 'Renovasi atap']))->assertOk()->assertSee('NT/2026/001')->assertDontSee('CAT-002');
+        $this->get(route('documents.index', ['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi']))->assertOk()->assertSee('NT/2026/001')->assertDontSee('CAT-002');
         $this->get(route('documents.index', ['q' => 'tidakada']))->assertOk()->assertSee('Nota belum ditemukan');
         $this->get(route('documents.create'))->assertOk()->assertSee('Tambah nota');
     }

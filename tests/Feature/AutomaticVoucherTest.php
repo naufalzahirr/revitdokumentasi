@@ -20,7 +20,7 @@ class AutomaticVoucherTest extends TestCase
 
     private function data(array $extra = []): array
     {
-        return array_merge(['category' => 'Renovasi atap', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
+        return array_merge(['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
     }
 
     private function createDocument(): Document
@@ -90,12 +90,12 @@ class AutomaticVoucherTest extends TestCase
         $this->assertSame('001/REV.SMK', $this->createDocument()->voucher_number);
     }
 
-    public function test_recipient_nip_is_optional_and_keeps_its_space_in_print(): void
+    public function test_recipient_nip_is_optional_and_has_no_label_when_blank(): void
     {
         $document = $this->createDocument();
         $this->assertNull($document->recipient_nip);
         $this->get(route('documents.voucher', $document))->assertOk()
-            ->assertSee('<div class="recipient-nip-line">NIP <span></span></div>', false);
+            ->assertSee('<div class="recipient-nip-line"></div>', false);
         $this->put(route('documents.update', $document), $this->data(['recipient_nip' => '001234567890123456']))->assertSessionHasNoErrors();
         $this->assertSame('001234567890123456', $document->fresh()->recipient_nip);
         $this->get(route('documents.voucher', $document))->assertOk()->assertSee('001234567890123456');

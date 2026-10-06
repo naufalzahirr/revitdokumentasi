@@ -21,7 +21,7 @@ class ReceiptSharingTest extends TestCase
 
     private function data(array $extra = []): array
     {
-        return array_merge(['category' => 'Renovasi atap', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
+        return array_merge(['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
     }
 
     private function createDocument(array $extra = []): Document
@@ -96,7 +96,7 @@ class ReceiptSharingTest extends TestCase
             $this->get($url)->assertOk()->assertHeader('Cache-Control', 'no-store, private');
         }
         $this->put($urls[0], $this->data(['category' => 'Dilarang berubah']))->assertStatus(405);
-        $this->assertSame('Renovasi atap', $document->fresh()->category);
+        $this->assertSame('Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', $document->fresh()->category);
         $this->delete(route('documents.unshare', $document))->assertRedirect();
         foreach ($urls as $url) {
             $this->get($url)->assertNotFound();

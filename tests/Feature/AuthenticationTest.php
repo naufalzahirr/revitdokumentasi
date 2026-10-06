@@ -28,7 +28,7 @@ class AuthenticationTest extends TestCase
 
     private function note(): Document
     {
-        $document = Document::create(['category' => 'Renovasi atap', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001']);
+        $document = Document::create(['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001']);
         Storage::disk('local')->put('receipt.jpg', 'receipt-image');
         Storage::disk('local')->put('photo.jpg', 'activity-image');
         $document->forceFill(['receipt_image_path' => 'receipt.jpg', 'share_token' => Str::random(48)])->save();

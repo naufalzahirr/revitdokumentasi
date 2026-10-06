@@ -4,7 +4,11 @@
 @php
     $shared = $shared ?? false;
     $routeDocument = $shared ? $document->share_token : $document;
-    $pages = $document->photos->isEmpty() ? collect([collect()]) : $document->photos->chunk(2);
+    $entries = $document->items->flatMap(fn ($item) => $item->photos->isEmpty()
+        ? collect([['item' => $item, 'photo' => null]])
+        : $item->photos->map(fn ($photo) => ['item' => $item, 'photo' => $photo]));
+    $photoNumbers = $document->items->flatMap->photos->values()->mapWithKeys(fn ($photo, $index) => [$photo->id => $index + 1]);
+    $pages = $entries->isEmpty() ? collect([collect()]) : $entries->chunk(2);
     $totalPages = 2 + $pages->count();
 @endphp
 <body class="print-preview">
@@ -24,10 +28,17 @@
         @endif
         @include('documents.partials.report-footer', ['pageNumber' => 2])
     </section>
-@foreach($pages as $pagePhotos)
+@foreach($pages as $pageEntries)
     <section class="sheet documentation-sheet" data-section="documentation">
         @include('documents.partials.report-header')
-        <div class="report-photos">@forelse($pagePhotos as $photo)<figure class="report-photo"><img src="{{ ($shared ? route('shared.photo', ['document' => $routeDocument, 'photo' => $photo]) : route('photos.show', $photo)) }}" alt="{{ $photo->caption }}"><figcaption><span>Gambar {{ $loop->parent->index * 2 + $loop->iteration }}</span><p>{{ $photo->caption ?: 'Keterangan belum diisi.' }}</p></figcaption></figure>@empty<p class="report-empty">Belum ada gambar dalam nota ini.</p>@endforelse</div>
+        <div class="report-photos">@forelse($pageEntries as $entry)
+            @php($photo = $entry['photo'])
+            @if($photo)
+                <figure class="report-photo"><h2 class="report-item-name">{{ $entry['item']->name }}</h2><img src="{{ ($shared ? route('shared.photo', ['document' => $routeDocument, 'photo' => $photo]) : route('photos.show', $photo)) }}" alt="{{ $photo->caption ?: $entry['item']->name }}"><figcaption><span>Gambar {{ $photoNumbers[$photo->id] }}</span><p>{{ $photo->caption ?: 'Keterangan belum diisi.' }}</p></figcaption></figure>
+            @else
+                <article class="report-item-empty"><h2 class="report-item-name">{{ $entry['item']->name }}</h2><p>Foto item belum ditambahkan.</p></article>
+            @endif
+        @empty<p class="report-empty">Belum ada gambar dalam nota ini.</p>@endforelse</div>
         @include('documents.partials.report-footer', ['pageNumber' => $loop->iteration + 2])
     </section>
 @endforeach

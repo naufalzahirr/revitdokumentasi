@@ -5,3 +5,8 @@ body.print-preview{background:#e9eeeb}.print-toolbar{display:flex;justify-conten
 .report-empty{padding:15mm 6mm;text-align:center;border:1px dashed #dce3dc;color:#829087;font-size:12px}
 
 .report-heading{text-align:center}.receipt-report-title{font-size:13px;margin:0 0 5mm;color:#52745b;text-align:center}.receipt-report-image{display:block;width:100%;height:205mm;object-fit:contain;border:1px solid #e2e7e0}
+
+.report-item-name{font-size:12px;line-height:1.5;color:#38473d;margin:0 0 2mm;overflow-wrap:anywhere}.report-item-empty{padding:8mm 5mm;border:1px dashed #dce3dc;margin-bottom:6mm;break-inside:avoid}.report-item-empty p{font-size:11px;line-height:1.6;color:#718075}
+
+.documentation-sheet{height:297mm}.documentation-sheet .report-heading,.documentation-sheet .report-meta,.documentation-sheet .report-footer{flex-shrink:0}.documentation-sheet .report-photos{flex:1;min-height:0;display:grid;grid-auto-rows:minmax(0,1fr);gap:6mm;margin-bottom:6mm}.documentation-sheet .report-photo{display:flex;flex-direction:column;min-height:0;margin:0}.documentation-sheet .report-photo img{flex:1;min-height:0;max-height:70mm}.documentation-sheet .report-item-name,.documentation-sheet figcaption{flex-shrink:0}.documentation-sheet .report-item-empty{margin:0;align-self:start}
+@media print{.documentation-sheet{height:273mm}}
