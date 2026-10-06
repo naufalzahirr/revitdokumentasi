@@ -22,7 +22,7 @@
         </div>
         <div class="voucher-signatures">
             <div class="voucher-signature"><div>Setuju Dibayar :<br>{{ $document->approver_title ?: 'Jabatan: '.$blank }}</div><div class="signature-space"></div><div>{{ $document->approver_name ?: $blank }}<br>NIP {{ $document->approver_nip ?: $blank }}</div></div>
-            <div class="voucher-signature"><div>Lunas Dibayar :<br>{{ $document->payment_date?->translatedFormat('d F Y') ?: $blank }}<br>Bendahara</div><div class="signature-space"></div><div>{{ $document->treasurer_name ?: $blank }}<br>NIP {{ $document->treasurer_nip ?: $blank }}</div></div>
+            <div class="voucher-signature"><div><span class="voucher-payment-line">Lunas Dibayar : {{ $document->payment_date?->translatedFormat('d F Y') ?: $blank }}</span><br>Bendahara</div><div class="signature-space"></div><div>{{ $document->treasurer_name ?: $blank }}<br>NIP {{ $document->treasurer_nip ?: $blank }}</div></div>
             <div class="voucher-signature"><div>{{ $document->payment_place ?: $blank }},<br>Penerima Pembayaran</div><div class="signature-space"></div><div>{{ $document->recipient_name ?: $blank }}<div class="recipient-nip-line">NIP <span>{{ $document->recipient_nip }}</span></div></div></div>
         </div>
     </div>
