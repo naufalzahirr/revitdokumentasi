@@ -62,15 +62,16 @@ class ReceiptSharingTest extends TestCase
         Storage::disk('local')->assertMissing($path);
     }
 
-    public function test_documentation_print_includes_receipt_attachment_as_a_separate_page(): void
+    public function test_combined_print_includes_receipt_as_a_separate_page(): void
     {
         $document = $this->createDocument([
             'receipt_image' => UploadedFile::fake()->image('nota.jpg'),
             'photos' => [['file' => UploadedFile::fake()->image('kegiatan.jpg'), 'caption' => 'Atap baru.']],
         ]);
-        $response = $this->get(route('documents.print', $document))->assertOk()->assertSee('Lampiran gambar nota')
-            ->assertSee('Halaman 1 dari 2')->assertSee('Halaman 2 dari 2');
-        $this->assertSame(2, substr_count($response->getContent(), '<h1>Dokumentasi Revitalisasi</h1>'));
+        $response = $this->get(route('documents.print', $document))->assertOk()->assertSee('Foto Nota')
+            ->assertSee('Halaman 1 dari 3')->assertSee('Halaman 2 dari 3')->assertSee('Halaman 3 dari 3')
+            ->assertSeeInOrder(['BUKTI PENGELUARAN DANA', '<h1>Foto Nota</h1>', '<h1>Dokumentasi Revitalisasi</h1>'], false);
+        $this->assertSame(1, substr_count($response->getContent(), '<h1>Dokumentasi Revitalisasi</h1>'));
     }
 
     public function test_share_link_is_stable_read_only_and_revocable_for_all_shared_routes(): void

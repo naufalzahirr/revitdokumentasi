@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\SharedDocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DocumentController::class, 'index'])->name('home');
+Route::resource('kategori', CategoryController::class)->parameters(['kategori' => 'category'])->names('categories')->except(['create', 'show']);
 Route::get('/dokumen/{document}/cetak', [DocumentController::class, 'print'])->name('documents.print');
 Route::get('/dokumen/{document}/cetak-bukti', [DocumentController::class, 'voucher'])->name('documents.voucher');
 Route::get('/foto/{photo}', [DocumentController::class, 'photo'])->name('photos.show');

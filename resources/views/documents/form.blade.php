@@ -9,7 +9,10 @@
     @if($document->exists)@method('PUT')@endif
     <div class="form-layout"><div class="form-main">
         <section class="panel"><div class="panel-heading"><span class="section-number">01</span><div><h2>Informasi nota</h2><p>Identitas kegiatan yang akan tampil pada dokumen cetak.</p></div></div>
-            <div class="field"><label for="category">Kategori pembangunan <span>*</span></label><input id="category" name="category" list="categories" value="{{ old('category', $document->category) }}" placeholder="Contoh: Pembangunan ruang kelas" required maxlength="100"><datalist id="categories">@foreach($categories as $category)<option value="{{ $category }}">@endforeach</datalist><small>Pilih saran atau ketik jenis pembangunan Anda sendiri.</small></div>
+            <div class="field"><label for="category">Kategori pembangunan <span>*</span></label>
+                <select id="category" name="category" required><option value="">Pilih kategori pembangunan</option>@foreach($categories as $category)<option value="{{ $category }}" @selected(old('category', $document->category) === $category)>{{ $category }}</option>@endforeach</select>
+                <small>Belum ada kategori yang sesuai? <a class="text-link" href="{{ route('categories.index') }}" target="_blank" rel="noopener">Kelola kategori</a>. Setelah menambah kategori, muat ulang formulir sebelum mengisi nota.</small>
+            </div>
             <div class="fields-row"><div class="field"><label for="receipt_date">Tanggal nota <span>*</span></label><input type="date" id="receipt_date" name="receipt_date" value="{{ old('receipt_date', $document->receipt_date?->format('Y-m-d') ?? now()->format('Y-m-d')) }}" required></div><div class="field"><label for="receipt_number">Nomor nota <span>*</span></label><input id="receipt_number" name="receipt_number" value="{{ old('receipt_number', $document->receipt_number) }}" placeholder="Contoh: NT/2026/001" required maxlength="100"></div></div>
             <div class="receipt-upload">
                 <div class="field"><label for="receipt-image">Gambar nota</label><input type="file" id="receipt-image" name="receipt_image" accept="image/jpeg,image/png,image/webp"><small>Unggah foto atau scan nota. JPG, PNG, WebP · Maksimal 5 MB. Bisa ditambahkan nanti.</small></div>

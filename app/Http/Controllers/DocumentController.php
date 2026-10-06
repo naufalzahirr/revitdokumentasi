@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentRequest;
+use App\Models\Category;
 use App\Models\Document;
 use App\Models\DocumentPhoto;
 use App\Support\VoucherNumber;
@@ -32,8 +33,8 @@ class DocumentController extends Controller
 
         return view('documents.index', [
             'documents' => $query->paginate(9)->withQueryString(),
-            'categories' => Document::distinct()->orderBy('category')->pluck('category'),
-            'stats' => ['documents' => Document::count(), 'photos' => DocumentPhoto::count(), 'categories' => Document::distinct()->count('category')],
+            'categories' => $this->categories(),
+            'stats' => ['documents' => Document::count(), 'photos' => DocumentPhoto::count(), 'categories' => Category::count()],
         ]);
     }
 
@@ -120,7 +121,7 @@ class DocumentController extends Controller
 
     public function voucher(Document $document): View
     {
-        return view('documents.voucher', ['document' => $document]);
+        return $this->print($document);
     }
 
     public function photo(DocumentPhoto $photo): StreamedResponse
@@ -191,6 +192,6 @@ class DocumentController extends Controller
 
     private function categories(): array
     {
-        return Document::pluck('category')->merge(['Pembangunan ruang kelas', 'Renovasi atap', 'Pembangunan toilet', 'Perbaikan lantai', 'Pengecatan bangunan', 'Pembangunan pagar'])->unique()->sort()->values()->all();
+        return Category::orderBy('name')->pluck('name')->all();
     }
 }

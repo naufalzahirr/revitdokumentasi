@@ -14,7 +14,7 @@ class AutomaticVoucherTest extends TestCase
 
     private function data(array $extra = []): array
     {
-        return array_merge(['category' => 'Renovasi', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
+        return array_merge(['category' => 'Renovasi atap', 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'], $extra);
     }
 
     private function createDocument(): Document

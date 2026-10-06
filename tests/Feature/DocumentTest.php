@@ -58,7 +58,7 @@ class DocumentTest extends TestCase
         $this->assertDatabaseCount('documents', 1);
         $this->assertCount(0, $document->photos);
         $this->get(route('documents.show', $document))->assertOk()->assertSee('Nota tersimpan, gambar bisa menyusul.')->assertSee('Edit nota');
-        $this->get(route('documents.print', $document))->assertOk()->assertSee('Belum ada gambar dalam nota ini.')->assertSee('Halaman 1 dari 1');
+        $this->get(route('documents.print', $document))->assertOk()->assertSee('Belum ada gambar dalam nota ini.')->assertSee('Halaman 3 dari 3');
     }
 
     public function test_non_images_oversized_photos_and_long_captions_are_rejected(): void
@@ -178,16 +178,17 @@ class DocumentTest extends TestCase
         ]]))->assertSessionHasNoErrors();
         $response = $this->get(route('documents.print', $document))->assertOk()
             ->assertSee('Kategori pembangunan')->assertSee('Tanggal nota')->assertSee('Nomor nota')
-            ->assertSee('Halaman 1 dari 2')->assertSee('Halaman 2 dari 2')->assertSee('Gambar 3')
+            ->assertSee('Halaman 1 dari 4')->assertSee('Halaman 4 dari 4')->assertSee('Gambar 3')
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)->assertDontSee('<script>alert(1)</script>', false);
-        $this->assertSame(2, substr_count($response->getContent(), 'class="sheet"'));
-        $this->assertSame(2, substr_count($response->getContent(), '<dd>NT/2026/001</dd>'));
+        $this->assertSame(2, substr_count($response->getContent(), 'data-section="documentation"'));
+        $this->assertSame(4, substr_count($response->getContent(), '<section class="sheet '));
+        $this->assertSame(3, substr_count($response->getContent(), '<dd>NT/2026/001</dd>'));
     }
 
     public function test_search_category_filter_and_empty_result_work(): void
     {
         $this->createDocument();
-        $this->post(route('documents.store'), $this->data(['category' => 'Pengecatan', 'receipt_number' => 'CAT-002']))->assertSessionHasNoErrors();
+        $this->post(route('documents.store'), $this->data(['category' => 'Pengecatan bangunan', 'receipt_number' => 'CAT-002']))->assertSessionHasNoErrors();
         $this->get(route('documents.index', ['q' => 'CAT-002']))->assertOk()->assertSee('CAT-002')->assertDontSee('NT/2026/001');
         $this->get(route('documents.index', ['category' => 'Renovasi atap']))->assertOk()->assertSee('NT/2026/001')->assertDontSee('CAT-002');
         $this->get(route('documents.index', ['q' => 'tidakada']))->assertOk()->assertSee('Nota belum ditemukan');

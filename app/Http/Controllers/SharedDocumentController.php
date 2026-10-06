@@ -33,9 +33,7 @@ class SharedDocumentController extends Controller
 
     public function voucher(Document $document): Response
     {
-        return response()->view('documents.voucher', ['document' => $document, 'shared' => true])
-            ->header('Cache-Control', 'private, no-store')
-            ->header('X-Robots-Tag', 'noindex, nofollow');
+        return $this->print($document);
     }
 
     public function photo(Document $document, DocumentPhoto $photo): StreamedResponse

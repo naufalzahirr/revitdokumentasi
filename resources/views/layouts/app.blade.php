@@ -15,8 +15,9 @@
     <nav aria-label="Menu utama">
         <a href="{{ route('documents.index') }}" class="nav-link {{ request()->routeIs('home', 'documents.index', 'documents.show', 'documents.edit') ? 'active' : '' }}"><x-icon name="grid"/> <span>Semua nota</span></a>
         <a href="{{ route('documents.create') }}" class="nav-link {{ request()->routeIs('documents.create') ? 'active' : '' }}"><x-icon name="plus"/> <span>Tambah nota</span></a>
+        <a href="{{ route('categories.index') }}" class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}"><x-icon name="folder"/> <span>Kategori</span></a>
     </nav>
-    <div class="sidebar-note"><span class="note-icon"><x-icon name="print" size="22"/></span><strong>Dari foto, jadi laporan.</strong><p>Simpan notatasi kegiatan dan cetak rapi dalam format A4.</p><span class="small-label">SEDERHANA. TERORGANISIR.</span></div>
+    <div class="sidebar-note"><span class="note-icon"><x-icon name="print" size="22"/></span><strong>Dari foto, jadi laporan.</strong><p>Simpan dokumentasi kegiatan dan cetak rapi dalam format A4.</p><span class="small-label">SEDERHANA. TERORGANISIR.</span></div>
     <div class="sidebar-footer"><span class="status-dot"></span> Arsip dokumentasi lokal <span class="version">v1.0</span></div>
 </aside>
 <div class="app-shell">

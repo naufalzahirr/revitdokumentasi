@@ -19,7 +19,7 @@ class DocumentRequest extends FormRequest
         $document = $this->route('document');
 
         return [
-            'category' => ['required', 'string', 'max:100'],
+            'category' => ['required', 'string', 'max:100', Rule::exists('categories', 'name')],
             'receipt_date' => ['required', 'date_format:Y-m-d'],
             'receipt_number' => ['required', 'string', 'max:100'],
             'receipt_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120', 'dimensions:max_width=8000,max_height=8000'],
@@ -69,6 +69,7 @@ class DocumentRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'category.exists' => 'Pilih kategori yang tersedia. Tambahkan kategori baru melalui menu Kategori.',
             'required' => ':attribute wajib diisi.',
             'string' => ':attribute harus berupa teks.',
             'max.string' => ':attribute maksimal :max karakter.',
