@@ -16,6 +16,7 @@ class ReceiptSharingTest extends TestCase
     {
         parent::setUp();
         Storage::fake('local');
+        $this->signIn();
     }
 
     private function data(array $extra = []): array

@@ -4,6 +4,10 @@ Aplikasi Laravel 12 sederhana untuk mengarsipkan foto revitalisasi dan mencetak 
 
 ## Fitur
 
+- Login menggunakan username dan password. Akun pengelola dapat mengelola seluruh nota dan kategori; admin juga dapat mengelola akun.
+- Admin dapat menambah akun, mengubah nama/username/peran, menonaktifkan akun, dan mereset password. Akun admin sendiri tidak dapat dinonaktifkan atau diturunkan perannya.
+- Password awal wajib diganti saat login pertama. Reset password dan perubahan status akun membatalkan sesi lama. Percobaan login berulang dibatasi; halaman internal dan foto meminta login.
+
 - Tambah, lihat, edit, dan hapus nota. Satu nota dapat memuat beberapa gambar.
 - Menu kategori untuk menambah, mengedit, dan menghapus kategori yang belum digunakan; pilihan kategori berbentuk dropdown pada formulir nota. Kategori lama otomatis dipertahankan saat migrasi. Tanggal nota, nomor nota, dan unggahan gambar/scan nota. Gambar nota dapat diganti atau dihapus saat edit.
 - Unggah beberapa foto dengan keterangan masing-masing; JPG, PNG, WebP, maksimal 5 MB per foto dan 20 foto per nota. Nota boleh disimpan tanpa foto dan keterangan boleh dilengkapi kemudian.
@@ -26,6 +30,7 @@ cp .env.example .env
 php artisan key:generate
 php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
 php artisan migrate
+php artisan revita:setup-users
 bash scripts/start.sh
 ```
 
@@ -37,7 +42,19 @@ Skrip ini mengatur batas unggahan PHP untuk 20 foto kegiatan dan satu gambar not
 
 File `.env`, database SQLite, foto unggahan, dan backup lokal tidak disertakan dalam repository. Instalasi baru dimulai dengan arsip kosong.
 
+## Akun awal
+
+Setelah migrasi, jalankan `php artisan revita:setup-users`. Masukkan password sementara saat diminta; password tidak disimpan di kode repository.
+
+Perintah ini membuat `admin` (Admin) serta `naufalzahirr`, `riri`, `yayuk`, `azizul`, `purnamawati`, dan `rika` (Pengelola). Untuk username admin berbeda, gunakan `--admin=namaadmin`. Menjalankan ulang perintah tidak menimpa akun, peran, atau password yang sudah ada. Untuk otomasi, `--password-stdin` menerima password melalui stdin.
+
+Login di `/login`, lalu ganti password awal. Admin mengelola akun melalui menu **Pengguna**. Pengguna yang lupa password menghubungi admin; tidak ada registrasi publik atau reset melalui email.
+
+Database lokal beserta akun tidak ikut di-push ke GitHub. Jalankan migrasi dan perintah pembuatan akun pada hosting, atau pindahkan backup database lokal jika ingin mempertahankan arsip dan akun yang sudah ada.
+
 ## Cara pakai
+
+Login terlebih dahulu, lalu:
 
 1. Klik **Tambah nota**.
 2. Pilih kategori pembangunan dari dropdown, lalu isi tanggal nota dan nomor nota. Untuk jenis pembangunan baru, tambahkan melalui menu **Kategori** terlebih dahulu.
@@ -53,13 +70,13 @@ Klik **Buat tautan berbagi** pada detail nota, lalu **Salin tautan**. Penerima t
 
 Selama aplikasi berjalan di `127.0.0.1`, tautan hanya bekerja pada komputer yang menjalankan aplikasi. Setelah hosting siap, atur `APP_URL=https://domain-anda`, jalankan `php artisan migrate --force` dan `php artisan optimize:clear`; buka aplikasi melalui domain tersebut sebelum menyalin tautan. Tidak ada layanan tunnel atau publikasi otomatis.
 
-Halaman berbagi tidak menyediakan operasi edit/hapus. Aplikasi pengelola saat ini belum memiliki login; tambahkan autentikasi pada rute pengelola sebelum hosting dibuka ke internet.
+Halaman berbagi tidak menyediakan operasi edit/hapus. Semua rute pengelolaan dilindungi login. Tautan berbagi tetap bisa dibuka tanpa login dan dapat dicabut dari detail nota.
 
 ## Penyimpanan dan backup
 
 Database: `database/database.sqlite`. Foto: `storage/app/private/documents/`. Backup keduanya agar arsip beserta fotonya dapat dipulihkan.
 
-Aplikasi ini untuk penggunaan lokal, tanpa login. Untuk penggunaan melalui internet, tambahkan autentikasi dan gunakan server web produksi dengan document root `public`, `APP_DEBUG=false`, serta batas PHP `upload_max_filesize=6M`, `post_max_size=128M`, `max_file_uploads=21`. Server web juga harus menerima request hingga 128 MB.
+Untuk penggunaan melalui internet, gunakan HTTPS dan server web produksi dengan document root `public`, `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://domain-anda`, `SESSION_SECURE_COOKIE=true`, serta batas PHP `upload_max_filesize=6M`, `post_max_size=128M`, `max_file_uploads=21`. Server web juga harus menerima request hingga 128 MB.
 
 ## Pengujian
 
@@ -68,6 +85,6 @@ php artisan test
 vendor/bin/pint --test
 ```
 
-Pengujian menggunakan SQLite in-memory dan penyimpanan foto palsu, sehingga arsip asli tidak diubah.
+Pengujian menggunakan SQLite in-memory dan penyimpanan foto palsu, sehingga arsip asli tidak diubah. Pengujian mencakup login, pembatasan percobaan, ganti password pertama, hak admin, pencabutan sesi, serta akses tautan berbagi tanpa login.
 
 Data sekolah otomatis tersimpan dalam `config/voucher.php`. Penghitung nomor bukti disimpan di database dan tidak mundur saat nota dihapus. Nomor tidak berubah ketika nota diedit.

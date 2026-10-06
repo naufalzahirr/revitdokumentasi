@@ -11,6 +11,12 @@ class CategoryTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->signIn();
+    }
+
     private function note(string $category): array
     {
         return ['category' => $category, 'receipt_date' => '2026-10-06', 'receipt_number' => 'NT-001'];
