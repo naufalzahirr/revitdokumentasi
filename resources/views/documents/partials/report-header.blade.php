@@ -1,0 +1,2 @@
+<header class="report-heading"><div class="report-eyebrow">ARSIP KEGIATAN REVITALISASI</div><h1>Dokumentasi Revitalisasi</h1><div class="report-rule"></div></header>
+<dl class="report-meta"><div><dt>Kategori pembangunan</dt><dd>{{ $document->category }}</dd></div><div><dt>Tanggal nota</dt><dd>{{ $document->receipt_date->translatedFormat('d F Y') }}</dd></div><div><dt>Nomor nota</dt><dd>{{ $document->receipt_number }}</dd></div></dl>
