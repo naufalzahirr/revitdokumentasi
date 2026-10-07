@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -26,5 +27,10 @@ class DocumentPhoto extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(DocumentItem::class, 'document_item_id');
+    }
+
+    public function scopeWithoutCaption(Builder $query): void
+    {
+        $query->where(fn (Builder $missing) => $missing->whereNull('caption')->orWhereRaw("TRIM(caption) = ''"));
     }
 }

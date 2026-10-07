@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
@@ -21,8 +22,11 @@ class DocumentController extends Controller
 {
     public function index(Request $request): View
     {
-        $filters = $request->validate(['q' => ['nullable', 'string', 'max:100'], 'category' => ['nullable', 'string', 'max:100']]);
-        $query = Document::with('coverPhoto')->withCount('photos')->latest();
+        $filters = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'], 'category' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['complete', 'incomplete', 'data_incomplete', 'photos_incomplete'])],
+        ]);
+        $query = Document::with('coverPhoto')->withProgress()->progressStatus($filters['status'] ?? null)->latest();
         if ($search = trim($filters['q'] ?? '')) {
             $query->where(function ($query) use ($search) {
                 $query->where('receipt_number', 'like', "%{$search}%")->orWhere('category', 'like', "%{$search}%");
@@ -32,10 +36,18 @@ class DocumentController extends Controller
             $query->where('category', $category);
         }
 
+        $total = Document::count();
+        $complete = Document::progressStatus('complete')->count();
+
         return view('documents.index', [
             'documents' => $query->paginate(9)->withQueryString(),
             'categories' => $this->categories(),
-            'stats' => ['documents' => Document::count(), 'photos' => DocumentPhoto::count(), 'categories' => Category::count()],
+            'stats' => [
+                'documents' => $total, 'photos' => DocumentPhoto::count(), 'categories' => Category::count(),
+                'complete' => $complete, 'incomplete' => $total - $complete,
+                'percentage' => $total > 0 ? (int) floor($complete / $total * 100) : 0,
+                'data_complete' => Document::dataComplete()->count(), 'photos_complete' => Document::photosComplete()->count(),
+            ],
         ]);
     }
 
