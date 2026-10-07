@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Berkas nota — {{ $document->receipt_number }}</title><link rel="stylesheet" href="{{ asset('css/app.css') }}"><link rel="stylesheet" href="{{ asset('css/print.css') }}"><link rel="stylesheet" href="{{ asset('css/voucher.css') }}"><script src="{{ asset('js/print.js') }}" defer></script></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><title>Berkas nota — {{ $document->receipt_number }}</title><link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}"><link rel="stylesheet" href="{{ \App\Support\Asset::url('css/print.css') }}"><link rel="stylesheet" href="{{ \App\Support\Asset::url('css/voucher.css') }}"><script src="{{ \App\Support\Asset::url('js/print.js') }}" defer></script></head>
 @php
     $shared = $shared ?? false;
     $routeDocument = $shared ? $document->share_token : $document;

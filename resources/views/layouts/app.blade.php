@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Dokumen') · Revita</title>
     <meta name="theme-color" content="#175b4b">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <script src="{{ asset('js/document-items.js') }}" defer></script>
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
+    <script src="{{ \App\Support\Asset::url('js/document-items.js') }}" defer></script>
+    <script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
 </head>
 <body>
 <aside class="sidebar">

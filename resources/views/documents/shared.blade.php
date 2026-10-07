@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"><title>Nota {{ $document->receipt_number }} · Revita</title><link rel="stylesheet" href="{{ asset('css/app.css') }}"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="referrer" content="no-referrer"><title>Nota {{ $document->receipt_number }} · Revita</title><link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}"></head>
 <body class="shared-document">
 <header class="shared-header"><div class="brand"><span class="brand-mark">r<span>.</span></span><span>revita</span></div><span class="category-tag">Nota dibagikan</span></header>
 <main class="shared-content">
