@@ -83,7 +83,7 @@ class DocumentProgressTest extends TestCase
             ->assertSee('Belum diisi: gambar nota, keperluan, penerima pembayaran, nominal.');
     }
 
-    public function test_missing_data_filters_agree_with_card_status_and_nip_is_optional(): void
+    public function test_missing_data_filters_agree_with_row_status_and_nip_is_optional(): void
     {
         $document = $this->completeNote();
         foreach (['category', 'receipt_number', 'receipt_image_path', 'purpose', 'recipient_name', 'amount'] as $field) {
@@ -107,17 +107,17 @@ class DocumentProgressTest extends TestCase
         $photoMissing = $this->completeNote(['receipt_number' => 'FOTO-001']);
         $photoMissing->items()->create(['name' => 'Pasir']);
         $blanks = [];
-        foreach (range(1, 10) as $number) {
+        foreach (range(1, 52) as $number) {
             $blanks[] = Document::create($this->data(['receipt_number' => 'BELUM-'.$number]));
         }
         $response = $this->get(route('documents.index'))->assertOk();
-        $response->assertViewHas('stats', fn ($stats) => $stats['documents'] === 12 && $stats['complete'] === 1
-            && $stats['incomplete'] === 11 && $stats['percentage'] === 8 && $stats['data_complete'] === 2 && $stats['photos_complete'] === 1);
-        $response->assertViewHas('documents', fn ($documents) => $documents->total() === 12 && $documents->count() === 9);
-        foreach (['complete' => 1, 'incomplete' => 11, 'data_incomplete' => 10, 'photos_incomplete' => 11] as $status => $count) {
+        $response->assertViewHas('stats', fn ($stats) => $stats['documents'] === 54 && $stats['complete'] === 1
+            && $stats['incomplete'] === 53 && $stats['percentage'] === 1 && $stats['data_complete'] === 2 && $stats['photos_complete'] === 1);
+        $response->assertViewHas('documents', fn ($documents) => $documents->total() === 54 && $documents->count() === 50);
+        foreach (['complete' => 1, 'incomplete' => 53, 'data_incomplete' => 52, 'photos_incomplete' => 53] as $status => $count) {
             $this->get(route('documents.index', ['status' => $status]))->assertOk()
                 ->assertViewHas('documents', fn ($documents) => $documents->total() === $count)
-                ->assertViewHas('stats', fn ($stats) => $stats['documents'] === 12 && $stats['complete'] === 1);
+                ->assertViewHas('stats', fn ($stats) => $stats['documents'] === 54 && $stats['complete'] === 1);
         }
         $this->get(route('documents.index', ['status' => 'incomplete', 'q' => 'FOTO', 'category' => $photoMissing->category]))
             ->assertOk()->assertViewHas('documents', fn ($documents) => $documents->pluck('id')->all() === [$photoMissing->id]);
@@ -157,5 +157,34 @@ class DocumentProgressTest extends TestCase
     public function test_invalid_status_is_rejected(): void
     {
         $this->get(route('documents.index', ['status' => 'unknown']))->assertSessionHasErrors('status');
+    }
+
+    public function test_table_uses_actual_ids_in_ascending_order_and_hides_receipt_numbers_without_changing_them(): void
+    {
+        $deleted = Document::create($this->data());
+        $deleted->delete();
+        $first = Document::create($this->data([
+            'receipt_number' => 'RAHASIA-NOMOR-001', 'amount' => 1012500,
+            'created_at' => now(), 'purpose' => 'Pembelian material tahap satu',
+        ]));
+        $second = Document::create($this->data([
+            'receipt_number' => 'RAHASIA-NOMOR-002', 'amount' => null,
+            'created_at' => now()->subMonth(), 'purpose' => 'Pembelian material tahap dua',
+        ]));
+        $response = $this->get(route('documents.index'))->assertOk()
+            ->assertViewHas('documents', fn ($documents) => $documents->modelKeys() === [$first->id, $second->id])
+            ->assertSee('Rp. 1.012.500')->assertSee('Pembelian material tahap satu')
+            ->assertDontSee('RAHASIA-NOMOR-001')->assertDontSee('RAHASIA-NOMOR-002');
+        $dom = new \DOMDocument;
+        @$dom->loadHTML('<?xml encoding="utf-8" ?>'.$response->getContent());
+        $xpath = new \DOMXPath($dom);
+        $ids = $xpath->query('//table[contains(@class, "nota-table")]/tbody/tr/th');
+        $this->assertSame([(string) $first->id, (string) $second->id], array_map(fn ($cell) => trim($cell->textContent), iterator_to_array($ids)));
+        $this->assertDatabaseHas('documents', ['id' => $first->id, 'receipt_number' => 'RAHASIA-NOMOR-001']);
+        $this->assertDatabaseHas('documents', ['id' => $second->id, 'receipt_number' => 'RAHASIA-NOMOR-002']);
+        foreach ([(string) $second->id, 'material tahap dua'] as $search) {
+            $this->get(route('documents.index', ['q' => $search, 'status' => 'incomplete', 'category' => $second->category]))
+                ->assertOk()->assertViewHas('documents', fn ($documents) => $documents->modelKeys() === [$second->id]);
+        }
     }
 }

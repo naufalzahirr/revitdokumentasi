@@ -25,10 +25,16 @@ class DocumentController extends Controller
             'q' => ['nullable', 'string', 'max:100'], 'category' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', Rule::in(['complete', 'incomplete', 'data_incomplete', 'photos_incomplete'])],
         ]);
-        $query = Document::with('coverPhoto')->withProgress()->progressStatus($filters['status'] ?? null)->latest();
+        $query = Document::withProgress()->progressStatus($filters['status'] ?? null)->orderBy('id');
         if ($search = trim($filters['q'] ?? '')) {
             $query->where(function ($query) use ($search) {
-                $query->where('receipt_number', 'like', "%{$search}%")->orWhere('category', 'like', "%{$search}%");
+                $query->where('receipt_number', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%")
+                    ->orWhere('purpose', 'like', "%{$search}%")
+                    ->orWhere('recipient_name', 'like', "%{$search}%");
+                if (ctype_digit($search)) {
+                    $query->orWhere('id', $search);
+                }
             });
         }
         if ($category = $filters['category'] ?? '') {
@@ -39,7 +45,7 @@ class DocumentController extends Controller
         $complete = Document::progressStatus('complete')->count();
 
         return view('documents.index', [
-            'documents' => $query->paginate(9)->withQueryString(),
+            'documents' => $query->paginate(50)->withQueryString(),
             'categories' => $this->categories(),
             'stats' => [
                 'documents' => $total, 'photos' => DocumentPhoto::count(), 'categories' => Category::count(),

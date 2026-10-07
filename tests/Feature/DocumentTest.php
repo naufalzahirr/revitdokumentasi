@@ -188,10 +188,13 @@ class DocumentTest extends TestCase
 
     public function test_search_category_filter_and_empty_result_work(): void
     {
-        $this->createDocument();
+        $original = $this->createDocument();
         $this->post(route('documents.store'), $this->data(['category' => 'Pengecatan Ruang Lainnya', 'receipt_number' => 'CAT-002']))->assertSessionHasNoErrors();
-        $this->get(route('documents.index', ['q' => 'CAT-002']))->assertOk()->assertSee('CAT-002')->assertDontSee('NT/2026/001');
-        $this->get(route('documents.index', ['category' => 'Pembangunan Baru - RPS Produksi dan Siaran Program Televisi']))->assertOk()->assertSee('NT/2026/001')->assertDontSee('CAT-002');
+        $painting = Document::latest('id')->firstOrFail();
+        $this->get(route('documents.index', ['q' => 'CAT-002']))->assertOk()
+            ->assertViewHas('documents', fn ($documents) => $documents->modelKeys() === [$painting->id]);
+        $this->get(route('documents.index', ['category' => $original->category]))->assertOk()
+            ->assertViewHas('documents', fn ($documents) => $documents->modelKeys() === [$original->id]);
         $this->get(route('documents.index', ['q' => 'tidakada']))->assertOk()->assertSee('Nota belum ditemukan');
         $this->get(route('documents.create'))->assertOk()->assertSee('Tambah nota');
     }
