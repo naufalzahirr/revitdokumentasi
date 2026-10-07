@@ -122,7 +122,7 @@ class ReceiptSharingTest extends TestCase
             'purpose' => 'Perjalanan dinas revitalisasi SMK', 'recipient_name' => 'Penerima Pembayaran',
         ]);
         $this->get(route('documents.voucher', $document))->assertOk()->assertSee('BUKTI PENGELUARAN DANA')
-            ->assertSee('001/REV.SMK')->assertSee('Rp. 6.150.328')->assertSee('Enam juta seratus lima puluh ribu tiga ratus dua puluh delapan rupiah')
+            ->assertSee('/REV.SMK')->assertDontSee('001/REV.SMK')->assertSee('Rp. 6.150.328')->assertSee('Enam juta seratus lima puluh ribu tiga ratus dua puluh delapan rupiah')
             ->assertSee('23 Juli 2026')->assertSee('197704212005022011')->assertSee('Yayuk Sri Mulyani Rahayu')
             ->assertSee('Riri Yulianti Solfia')->assertSee('Perjalanan dinas revitalisasi SMK');
         $this->get(route('documents.edit', $document))->assertOk()->assertSee('6150328')->assertSee('199107262019032001');

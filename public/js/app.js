@@ -7,8 +7,14 @@ document.querySelectorAll('form[data-confirm]').forEach(form => {
 const documentForm = document.getElementById('document-form');
 if (documentForm) {
     const receiptDate = document.getElementById('receipt_date');
-    const paymentDate = document.getElementById('payment-date');
-    receiptDate.addEventListener('input', () => { paymentDate.value = receiptDate.value; });
+    const paymentMonth = document.getElementById('payment-month');
+    const updatePaymentMonth = () => {
+        const [year, month] = receiptDate.value.split('-');
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        paymentMonth.value = year && months[Number(month) - 1] ? `${months[Number(month) - 1]} ${year}` : '';
+    };
+    receiptDate.addEventListener('input', updatePaymentMonth);
+    updatePaymentMonth();
 
     const receiptInput = document.getElementById('receipt-image');
     const receiptPreview = document.getElementById('receipt-preview');

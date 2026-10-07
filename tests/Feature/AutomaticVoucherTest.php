@@ -39,7 +39,7 @@ class AutomaticVoucherTest extends TestCase
         $this->assertSame('002/REV.SMK', $second->voucher_number);
         $this->delete(route('documents.destroy', $first))->assertRedirect();
         $this->assertSame('001/REV.SMK', VoucherNumber::preview());
-        $this->get(route('documents.create'))->assertOk()->assertSee('001/REV.SMK');
+        $this->get(route('documents.create'))->assertOk()->assertSee('value="/REV.SMK"', false)->assertDontSee('001/REV.SMK');
         $third = $this->createDocument();
         $this->assertSame('001/REV.SMK', $third->voucher_number);
         $this->assertSame('002/REV.SMK', $second->fresh()->voucher_number);
@@ -90,7 +90,7 @@ class AutomaticVoucherTest extends TestCase
         $this->put(route('documents.update', $document), $this->data($extra + ['amount' => 1000]))->assertSessionHasNoErrors();
         $this->assertSame('001/REV.SMK', $document->fresh()->voucher_number);
         $this->assertSame('002/REV.SMK', VoucherNumber::preview());
-        $this->get(route('documents.voucher', $document))->assertOk()->assertSee('001/REV.SMK')
+        $this->get(route('documents.voucher', $document))->assertOk()->assertSee('/REV.SMK')->assertDontSee('001/REV.SMK')
             ->assertSee('Yayuk Sri Mulyani Rahayu')->assertSee('Riri Yulianti Solfia')->assertSee('Penerima yang diinput');
     }
 
@@ -101,7 +101,7 @@ class AutomaticVoucherTest extends TestCase
         $this->assertSame('2026-11-10', $document->fresh()->payment_date->format('Y-m-d'));
         $this->assertSame('Nama baru', $document->fresh()->recipient_name);
         $this->assertSame('001/REV.SMK', $document->fresh()->voucher_number);
-        $this->get(route('documents.create'))->assertOk()->assertSee('002/REV.SMK')->assertDontSee('name="voucher_number"', false);
+        $this->get(route('documents.create'))->assertOk()->assertSee('value="/REV.SMK"', false)->assertDontSee('002/REV.SMK')->assertDontSee('name="voucher_number"', false);
     }
 
     public function test_failed_transaction_does_not_consume_a_voucher_number(): void
@@ -117,6 +117,33 @@ class AutomaticVoucherTest extends TestCase
         $this->assertDatabaseCount('documents', 0);
         $this->assertSame('001/REV.SMK', VoucherNumber::preview());
         $this->assertSame('001/REV.SMK', $this->createDocument()->voucher_number);
+    }
+
+    public function test_internal_and_shared_prints_leave_number_and_day_blank_for_handwriting(): void
+    {
+        $this->post(route('documents.store'), $this->data(['receipt_date' => '2026-09-07']))->assertSessionHasNoErrors();
+        $document = Document::firstOrFail();
+        $this->post(route('documents.share', $document))->assertSessionHasNoErrors();
+        $token = $document->fresh()->share_token;
+        foreach ([route('documents.print', $document), route('documents.voucher', $document), route('shared.print', $token), route('shared.voucher', $token)] as $url) {
+            $response = $this->get($url)->assertOk()->assertDontSee('001/REV.SMK')->assertSee('07 September 2026');
+            $html = new \DOMDocument;
+            @$html->loadHTML($response->getContent());
+            $xpath = new \DOMXPath($html);
+            $number = $xpath->query('//div[@class="voucher-number"]')->item(0);
+            $date = $xpath->query('//span[@class="voucher-payment-line"]')->item(0);
+            $this->assertSame('Nomor : /REV.SMK', trim($number->textContent));
+            $this->assertSame('Lunas Dibayar : September 2026', trim($date->textContent));
+            foreach (['voucher-manual-number', 'voucher-manual-day'] as $class) {
+                $blanks = $xpath->query('//span[@class="'.$class.'"]');
+                $this->assertCount(1, $blanks);
+                $this->assertSame('', $blanks->item(0)->textContent);
+            }
+        }
+        $this->get(route('documents.edit', $document))->assertOk()->assertSee('value="/REV.SMK"', false)
+            ->assertSee('value="September 2026"', false)->assertSee('ditulis tangan');
+        $this->assertSame('001/REV.SMK', $document->fresh()->voucher_number);
+        $this->assertSame('2026-09-07', $document->fresh()->receipt_date->format('Y-m-d'));
     }
 
     public function test_recipient_nip_is_optional_and_has_no_label_when_blank(): void

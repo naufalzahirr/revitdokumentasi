@@ -3,3 +3,4 @@
 .recipient-nip-line{display:flex;gap:4px;align-items:baseline;min-height:1.5em}.recipient-nip-line>span{flex:1;min-height:1em;overflow-wrap:anywhere}
 
 .voucher-payment-line{display:inline-block;white-space:nowrap;overflow-wrap:normal}
+.voucher-manual-number,.voucher-manual-day{display:inline-block;height:1em;vertical-align:baseline}.voucher-manual-number{width:14mm}.voucher-manual-day{width:8mm}

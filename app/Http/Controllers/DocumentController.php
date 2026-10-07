@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Document;
 use App\Models\DocumentItem;
 use App\Models\DocumentPhoto;
-use App\Support\VoucherNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,7 +52,7 @@ class DocumentController extends Controller
 
     public function create(): View
     {
-        return view('documents.form', ['document' => new Document, 'categories' => $this->categories(), 'nextVoucherNumber' => VoucherNumber::preview()]);
+        return view('documents.form', ['document' => new Document, 'categories' => $this->categories()]);
     }
 
     public function store(DocumentRequest $request): RedirectResponse
