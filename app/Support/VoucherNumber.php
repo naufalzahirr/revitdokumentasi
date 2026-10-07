@@ -8,17 +8,35 @@ class VoucherNumber
 {
     public static function next(): string
     {
-        // Increment first: this locks the counter row until the transaction commits.
+        // Serialize allocations until the surrounding document transaction commits.
         return DB::transaction(function () {
             DB::table('voucher_counters')->where('name', 'expenditure')->increment('last_number');
+            $number = self::firstAvailable(lock: true);
+            DB::table('voucher_counters')->where('name', 'expenditure')->update(['last_number' => $number]);
 
-            return self::format((int) DB::table('voucher_counters')->where('name', 'expenditure')->value('last_number'));
+            return self::format($number);
         });
     }
 
     public static function preview(): string
     {
-        return self::format((int) DB::table('voucher_counters')->where('name', 'expenditure')->value('last_number') + 1);
+        return self::format(self::firstAvailable());
+    }
+
+    private static function firstAvailable(bool $lock = false): int
+    {
+        $query = DB::table('documents')->select('voucher_number');
+        if ($lock) {
+            // A current read includes allocations committed while waiting for the counter lock.
+            $query->lockForUpdate();
+        }
+        $used = array_fill_keys($query->pluck('voucher_number')->all(), true);
+        $number = 1;
+        while (isset($used[self::format($number)])) {
+            $number++;
+        }
+
+        return $number;
     }
 
     public static function format(int $number): string

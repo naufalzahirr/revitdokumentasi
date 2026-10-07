@@ -99,7 +99,7 @@ vendor/bin/pint --test
 
 Pengujian menggunakan SQLite in-memory dan penyimpanan foto palsu, sehingga arsip asli tidak diubah. Pengujian mencakup login, pembatasan percobaan, ganti password pertama, hak admin, pencabutan sesi, serta akses tautan berbagi tanpa login.
 
-Data sekolah otomatis tersimpan dalam `config/voucher.php`. Penghitung nomor bukti disimpan di database dan tidak mundur saat nota dihapus. Nomor tidak berubah ketika nota diedit.
+Data sekolah otomatis tersimpan dalam `config/voucher.php`. Nota baru memakai nomor bukti kosong paling awal: jika `001/REV.SMK` dihapus, nomor tersebut digunakan kembali untuk nota baru, walaupun masih ada nota bernomor lebih tinggi. Nomor nota lain tidak diubah, dan nomor bukti tetap saat nota diedit. Pemberian nomor dikunci dalam transaksi database agar penyimpanan nota bersamaan tidak mendapat nomor yang sama.
 
 ## Hosting dengan MySQL dan reset instalasi awal
 

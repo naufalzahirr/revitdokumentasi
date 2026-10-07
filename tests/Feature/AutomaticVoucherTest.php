@@ -30,18 +30,47 @@ class AutomaticVoucherTest extends TestCase
         return Document::latest('id')->firstOrFail();
     }
 
-    public function test_voucher_numbers_start_at_one_and_are_not_reused_after_deletion(): void
+    public function test_voucher_numbers_reuse_the_first_available_number_after_deletion(): void
     {
         $this->assertSame('001/REV.SMK', VoucherNumber::preview());
         $first = $this->createDocument();
         $second = $this->createDocument();
         $this->assertSame('001/REV.SMK', $first->voucher_number);
         $this->assertSame('002/REV.SMK', $second->voucher_number);
-        $this->delete(route('documents.destroy', $second))->assertRedirect();
+        $this->delete(route('documents.destroy', $first))->assertRedirect();
+        $this->assertSame('001/REV.SMK', VoucherNumber::preview());
+        $this->get(route('documents.create'))->assertOk()->assertSee('001/REV.SMK');
         $third = $this->createDocument();
-        $this->assertSame('003/REV.SMK', $third->voucher_number);
-        $this->assertSame('004/REV.SMK', VoucherNumber::preview());
+        $this->assertSame('001/REV.SMK', $third->voucher_number);
+        $this->assertSame('002/REV.SMK', $second->fresh()->voucher_number);
+        $this->assertSame('003/REV.SMK', VoucherNumber::preview());
         $this->assertSame('1000/REV.SMK', VoucherNumber::format(1000));
+    }
+
+    public function test_gaps_are_filled_in_order_without_renumbering_existing_notes(): void
+    {
+        $notes = array_map(fn () => $this->createDocument(), range(1, 5));
+        foreach ([$notes[3], $notes[1]] as $note) {
+            $this->delete(route('documents.destroy', $note))->assertRedirect();
+        }
+        $this->assertSame('002/REV.SMK', VoucherNumber::preview());
+        $this->assertSame('002/REV.SMK', $this->createDocument()->voucher_number);
+        $this->assertSame('004/REV.SMK', VoucherNumber::preview());
+        $this->assertSame('004/REV.SMK', $this->createDocument()->voucher_number);
+        $this->assertSame('006/REV.SMK', $this->createDocument()->voucher_number);
+        foreach ([0, 2, 4] as $index) {
+            $this->assertSame(VoucherNumber::format($index + 1), $notes[$index]->fresh()->voucher_number);
+        }
+    }
+
+    public function test_empty_archive_starts_at_one_even_when_the_old_counter_is_high(): void
+    {
+        $note = $this->createDocument();
+        $this->delete(route('documents.destroy', $note))->assertRedirect();
+        DB::table('voucher_counters')->where('name', 'expenditure')->update(['last_number' => 1000]);
+        $this->assertSame('001/REV.SMK', VoucherNumber::preview());
+        $this->assertSame('001/REV.SMK', $this->createDocument()->voucher_number);
+        $this->assertSame('002/REV.SMK', $this->createDocument()->voucher_number);
     }
 
     public function test_school_details_are_automatic_and_cannot_be_overridden_by_form_input(): void
