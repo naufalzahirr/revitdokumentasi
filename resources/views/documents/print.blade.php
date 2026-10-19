@@ -9,16 +9,23 @@
         : $item->photos->map(fn ($photo) => ['item' => $item, 'photo' => $photo]));
     $photoNumbers = $document->items->flatMap->photos->values()->mapWithKeys(fn ($photo, $index) => [$photo->id => $index + 1]);
     $pages = $entries->isEmpty() ? collect([collect()]) : $entries->chunk(2);
-    $totalPages = 2 + $pages->count();
+    $handoverPages = \App\Support\HandoverReport::pages($document->items);
+    $totalPages = 2 + $handoverPages->count() + $pages->count();
 @endphp
 <body class="print-preview">
 <header class="print-toolbar"><a class="back-link" href="{{ route($shared ? 'shared.show' : 'documents.show', $routeDocument) }}"><x-icon name="arrow" size="18"/>Kembali ke nota</a><div><span class="print-format">Satu berkas · A4 · {{ $totalPages }} halaman</span><button class="button primary" id="print-button"><x-icon name="print" size="18"/>Cetak / Simpan PDF</button></div></header>
-<p class="print-instruction" id="print-instruction" role="status">Urutan: bukti pengeluaran, foto nota, dokumentasi. Pilih kertas A4, skala 100%, dan nonaktifkan header/footer browser. Untuk PDF, pilih “Save as PDF”.</p>
+<p class="print-instruction" id="print-instruction" role="status">Urutan: bukti pengeluaran, berita acara serah terima, foto nota, dokumentasi. Pilih kertas A4, skala 100%, dan nonaktifkan header/footer browser. Untuk PDF, pilih “Save as PDF”.</p>
 <main class="print-pages">
     <section class="sheet voucher-sheet" data-section="voucher">
         @include('documents.partials.voucher-content')
         @include('documents.partials.report-footer', ['pageNumber' => 1])
     </section>
+    @foreach($handoverPages as $handoverRows)
+    <section class="sheet handover-sheet" data-section="handover">
+        @include('documents.partials.handover-content', ['handoverPageNumber' => $loop->iteration])
+        @include('documents.partials.report-footer', ['pageNumber' => $loop->iteration + 1])
+    </section>
+    @endforeach
     <section class="sheet receipt-sheet" data-section="receipt">
         @include('documents.partials.report-header', ['reportTitle' => 'Foto Nota'])
         @if($document->receipt_image_path)
@@ -26,7 +33,7 @@
         @else
             <p class="report-empty">Belum ada gambar nota yang diunggah.</p>
         @endif
-        @include('documents.partials.report-footer', ['pageNumber' => 2])
+        @include('documents.partials.report-footer', ['pageNumber' => 2 + $handoverPages->count()])
     </section>
 @foreach($pages as $pageEntries)
     <section class="sheet documentation-sheet" data-section="documentation">
@@ -39,7 +46,7 @@
                 <article class="report-item-empty"><h2 class="report-item-name">{{ $entry['item']->name }}</h2><p>Foto item belum ditambahkan.</p></article>
             @endif
         @empty<p class="report-empty">Belum ada gambar dalam nota ini.</p>@endforelse</div>
-        @include('documents.partials.report-footer', ['pageNumber' => $loop->iteration + 2])
+        @include('documents.partials.report-footer', ['pageNumber' => $loop->iteration + 2 + $handoverPages->count()])
     </section>
 @endforeach
 </main>

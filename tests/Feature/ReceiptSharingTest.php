@@ -70,8 +70,8 @@ class ReceiptSharingTest extends TestCase
             'photos' => [['file' => UploadedFile::fake()->image('kegiatan.jpg'), 'caption' => 'Atap baru.']],
         ]);
         $response = $this->get(route('documents.print', $document))->assertOk()->assertSee('Foto Nota')
-            ->assertSee('Halaman 1 dari 3')->assertSee('Halaman 2 dari 3')->assertSee('Halaman 3 dari 3')
-            ->assertSeeInOrder(['BUKTI PENGELUARAN DANA', '<h1>Foto Nota</h1>', '<h1>Dokumentasi Revitalisasi</h1>'], false);
+            ->assertSee('Halaman 1 dari 4')->assertSee('Halaman 2 dari 4')->assertSee('Halaman 3 dari 4')->assertSee('Halaman 4 dari 4')
+            ->assertSeeInOrder(['BUKTI PENGELUARAN DANA', 'BERITA ACARA SERAH TERIMA', '<h1>Foto Nota</h1>', '<h1>Dokumentasi Revitalisasi</h1>'], false);
         $this->assertSame(1, substr_count($response->getContent(), '<h1>Dokumentasi Revitalisasi</h1>'));
     }
 

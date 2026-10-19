@@ -188,7 +188,7 @@ class DocumentItemTest extends TestCase
         $document = $this->createNote();
         $response = $this->get(route('documents.print', $document))->assertOk()
             ->assertSee('Semen')->assertSee('Pasir')->assertSee('Rangka atap')->assertSee('Foto item belum ditambahkan.')
-            ->assertSee('Gambar 3')->assertSee('Halaman 4 dari 4');
+            ->assertSee('Gambar 3')->assertSee('Halaman 5 dari 5');
         $html = new \DOMDocument;
         @$html->loadHTML($response->getContent());
         $xpath = new \DOMXPath($html);

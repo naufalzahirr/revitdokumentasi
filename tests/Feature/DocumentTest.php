@@ -59,7 +59,7 @@ class DocumentTest extends TestCase
         $this->assertDatabaseCount('documents', 1);
         $this->assertCount(0, $document->photos);
         $this->get(route('documents.show', $document))->assertOk()->assertSee('Nota tersimpan, gambar bisa menyusul.')->assertSee('Edit nota');
-        $this->get(route('documents.print', $document))->assertOk()->assertSee('Belum ada gambar dalam nota ini.')->assertSee('Halaman 3 dari 3');
+        $this->get(route('documents.print', $document))->assertOk()->assertSee('Belum ada gambar dalam nota ini.')->assertSee('Halaman 4 dari 4');
     }
 
     public function test_non_images_oversized_photos_and_long_captions_are_rejected(): void
@@ -179,10 +179,10 @@ class DocumentTest extends TestCase
         ]]))->assertSessionHasNoErrors();
         $response = $this->get(route('documents.print', $document))->assertOk()
             ->assertSee('Kategori pembangunan')->assertSee('Tanggal nota')->assertSee('Nomor nota')
-            ->assertSee('Halaman 1 dari 4')->assertSee('Halaman 4 dari 4')->assertSee('Gambar 3')
+            ->assertSee('Halaman 1 dari 5')->assertSee('Halaman 5 dari 5')->assertSee('Gambar 3')
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)->assertDontSee('<script>alert(1)</script>', false);
         $this->assertSame(2, substr_count($response->getContent(), 'data-section="documentation"'));
-        $this->assertSame(4, substr_count($response->getContent(), '<section class="sheet '));
+        $this->assertSame(5, substr_count($response->getContent(), '<section class="sheet '));
         $this->assertSame(3, substr_count($response->getContent(), '<dd>NT/2026/001</dd>'));
     }
 
