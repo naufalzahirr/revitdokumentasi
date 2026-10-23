@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Document extends Model
 {
-    public const EDITABLE_FIELDS = ['category', 'receipt_date', 'receipt_number', 'amount', 'purpose', 'recipient_name', 'recipient_nip'];
+    public const EDITABLE_FIELDS = ['category', 'receipt_date', 'receipt_number', 'amount', 'purpose', 'recipient_name', 'recipient_nip', 'handover_number', 'handover_date', 'order_number', 'order_date', 'supplier_name'];
 
     private const PROGRESS_FIELDS = [
         'category' => 'kategori', 'receipt_date' => 'tanggal nota', 'receipt_number' => 'nomor nota',
@@ -37,7 +37,7 @@ class Document extends Model
 
     protected function casts(): array
     {
-        return ['receipt_date' => 'date', 'payment_date' => 'date', 'amount' => 'integer'];
+        return ['receipt_date' => 'date', 'payment_date' => 'date', 'amount' => 'integer', 'handover_date' => 'date', 'order_date' => 'date'];
     }
 
     public function photos(): HasMany

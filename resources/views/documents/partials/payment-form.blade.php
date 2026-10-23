@@ -1,5 +1,5 @@
 <section class="panel">
-    <div class="panel-heading"><span class="section-number">03</span><div><h2>Bukti pengeluaran dana</h2><p>Nomor dan hari pembayaran diisi tangan setelah dicetak. Lengkapi nominal, keperluan, dan penerima pembayaran.</p></div></div>
+    <div class="panel-heading"><span class="section-number">04</span><div><h2>Bukti pengeluaran dana</h2><p>Nomor dan hari pembayaran diisi tangan setelah dicetak. Lengkapi nominal, keperluan, dan penerima pembayaran.</p></div></div>
     <div class="field"><label for="voucher-number">Nomor bukti pada hasil cetak</label><input id="voucher-number" value="/REV.SMK" readonly><small>Bagian angka sebelum /REV.SMK dikosongkan untuk ditulis tangan setelah dicetak.</small></div>
     <div class="field"><label for="received-from">Sudah terima dari <span class="auto-field-badge">Otomatis</span></label><input id="received-from" value="{{ config('voucher.fixed_fields.received_from') }}" readonly></div>
     <div class="field"><label for="amount">Nominal (Rp)</label><input type="number" id="amount" name="amount" value="{{ old('amount', $document->amount) }}" min="0" max="999999999999" step="1" placeholder="Contoh: 6150328"><small>Masukkan angka tanpa titik/koma. Terbilang dibuat otomatis pada hasil cetak.</small></div>

@@ -20,7 +20,12 @@ class HandoverReport
                 $rows = collect();
                 $lines = 0;
             }
-            $rows->push(['number' => $index + 1, 'name' => $item->name]);
+            $rows->push([
+                'number' => $index + 1, 'name' => $item->name,
+                'ordered_quantity' => $item->ordered_quantity,
+                'received_good_quantity' => $item->received_good_quantity,
+                'received_damaged_quantity' => $item->received_damaged_quantity,
+            ]);
             $lines += $cost;
         }
 

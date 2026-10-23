@@ -1,12 +1,12 @@
 @php
-    $defaultItems = $document->exists ? $document->items->map(fn ($item) => ['id' => $item->id, 'name' => $item->name])->all() : [];
+    $defaultItems = $document->exists ? $document->items->map(fn ($item) => $item->only(array_merge(['id'], \App\Models\DocumentItem::EDITABLE_FIELDS)))->all() : [];
     $formItems = old('items', $defaultItems);
     $formItems = is_array($formItems) ? array_values(array_filter($formItems, 'is_array')) : [];
     $removedItemIds = array_intersect($document->items->pluck('id')->all(), array_filter((array) old('remove_items', []), 'is_numeric'));
     foreach ($removedItemIds as $removedId) {
         $saved = $document->items->firstWhere('id', $removedId);
         if (! collect($formItems)->contains(fn ($item) => ($item['id'] ?? null) == $saved->id)) {
-            $formItems[] = ['id' => $saved->id, 'name' => $saved->name];
+            $formItems[] = $saved->only(array_merge(['id'], \App\Models\DocumentItem::EDITABLE_FIELDS));
         }
     }
 @endphp

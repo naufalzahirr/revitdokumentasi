@@ -10,12 +10,12 @@
     <img src="{{ \App\Support\Asset::url('images/smkn4.gif') }}" alt="Logo SMK Negeri 4 Tanjungpinang">
 </header>
 <h1 class="handover-title">BERITA ACARA SERAH TERIMA</h1>
-<p class="handover-number">Nomor : <span class="handover-manual-number" aria-hidden="true"></span>{{ config('handover.number_suffix') }}{{ $document->receipt_date?->year }}</p>
+<p class="handover-number">Nomor : @if(filled($document->handover_number)){{ $document->handover_number }}@else<span class="handover-manual-number" aria-hidden="true"></span>@endif{{ config('handover.number_suffix') }}{{ ($document->handover_date ?? $document->receipt_date)?->year }}</p>
 <div class="handover-body">
-    <p>Pada hari <span class="handover-blank handover-day" aria-hidden="true"></span>, tanggal <span class="handover-blank handover-date" aria-hidden="true"></span>, sesuai dengan :</p>
+    <p>Pada hari @if($document->handover_date){{ $document->handover_date->translatedFormat('l') }}@else<span class="handover-blank handover-day" aria-hidden="true"></span>@endif, tanggal @if($document->handover_date){{ $document->handover_date->translatedFormat('d F Y') }}@else<span class="handover-blank handover-date" aria-hidden="true"></span>@endif, sesuai dengan :</p>
     <dl class="handover-fields handover-order">
-        <dt>Nomor Surat Pesanan</dt><dd>: <span class="handover-manual-number" aria-hidden="true"></span>{{ config('handover.order_number_suffix') }}{{ $document->receipt_date?->year }}</dd>
-        <dt>Tanggal</dt><dd>: <span class="handover-blank handover-date" aria-hidden="true"></span></dd>
+        <dt>Nomor Surat Pesanan</dt><dd>: @if(filled($document->order_number)){{ $document->order_number }}@else<span class="handover-manual-number" aria-hidden="true"></span>@endif{{ config('handover.order_number_suffix') }}{{ ($document->order_date ?? $document->receipt_date)?->year }}</dd>
+        <dt>Tanggal</dt><dd>: @if($document->order_date){{ $document->order_date->translatedFormat('d F Y') }}@else<span class="handover-blank handover-date" aria-hidden="true"></span>@endif</dd>
     </dl>
     <p>Yang bertanda tangan di bawah ini :</p>
     <dl class="handover-fields handover-inspector">
@@ -30,7 +30,7 @@
         <thead><tr><th>No.</th><th>Nama Barang/Jasa</th><th>Jumlah Dipesan</th><th>Jumlah Diterima Kondisi Baik</th><th>Jumlah Diterima Kondisi Rusak</th></tr></thead>
         <tbody>
         @foreach($handoverRows as $row)
-            <tr><td>{{ $row['number'] }}.</td><td>{{ $row['name'] }}</td><td></td><td></td><td></td></tr>
+            <tr><td>{{ $row['number'] }}.</td><td>{{ $row['name'] }}</td><td>{{ $row['ordered_quantity'] }}</td><td>{{ $row['received_good_quantity'] }}</td><td>{{ $row['received_damaged_quantity'] }}</td></tr>
         @endforeach
         @for($blankRow = $handoverRows->count(); $blankRow < 3; $blankRow++)
             <tr><td>{{ $handoverRows->isEmpty() ? $blankRow + 1 . '.' : '' }}</td><td></td><td></td><td></td><td></td></tr>
@@ -39,8 +39,8 @@
     </table>
     <p class="handover-closing">Demikian berita acara ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana seharusnya.</p>
     <div class="handover-signatures">
-        <div class="handover-signing-date">{{ config('voucher.fixed_fields.payment_place') }}, <span class="handover-blank handover-date" aria-hidden="true"></span></div>
-        <div class="handover-signature"><p>Penyedia,</p><div class="handover-signature-space"></div><p><span class="handover-blank handover-supplier" aria-hidden="true"></span></p></div>
+        <div class="handover-signing-date">{{ config('voucher.fixed_fields.payment_place') }}, @if($document->handover_date){{ $document->handover_date->translatedFormat('d F Y') }}@else<span class="handover-blank handover-date" aria-hidden="true"></span>@endif</div>
+        <div class="handover-signature"><p>Penyedia,</p><div class="handover-signature-space"></div><p>@if(filled($document->supplier_name)){{ $document->supplier_name }}@else<span class="handover-blank handover-supplier" aria-hidden="true"></span>@endif</p></div>
         <div class="handover-signature"><p>Pemeriksa,</p><div class="handover-signature-space"></div><p>{{ config('voucher.fixed_fields.approver_name') }}</p></div>
     </div>
 </div>

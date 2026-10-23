@@ -205,11 +205,12 @@ class DocumentController extends Controller
             $item->delete();
         }
         foreach ($data['items'] ?? [] as $attributes) {
+            $itemData = collect($attributes)->only(DocumentItem::EDITABLE_FIELDS)->all();
             if ($attributes['id'] ?? null) {
                 $item = $document->items()->whereKey($attributes['id'])->firstOrFail();
-                $item->update(['name' => $attributes['name']]);
+                $item->update($itemData);
             } else {
-                $item = $document->items()->create(['name' => $attributes['name']]);
+                $item = $document->items()->create($itemData);
             }
             foreach ($item->photos()->whereIn('id', $attributes['remove_photos'] ?? [])->get() as $photo) {
                 $removedPaths[] = $photo->path;

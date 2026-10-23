@@ -8,6 +8,16 @@
     <div class="item-editor-heading"><strong data-item-title>Item nota</strong><button type="button" class="text-button remove-item">Hapus item</button></div>
     @if($savedItem)<input type="hidden" name="items[{{ $itemKey }}][id]" value="{{ $savedItem->id }}">@endif
     <div class="field"><label for="item-name-{{ $itemKey }}">Nama item <span>*</span></label><input id="item-name-{{ $itemKey }}" class="item-name" name="items[{{ $itemKey }}][name]" value="{{ $itemName }}" required maxlength="200" placeholder="Contoh: Semen, pasir, atau rangka atap"></div>
+    <fieldset class="handover-quantities">
+        <legend>Jumlah untuk berita acara serah terima</legend>
+        <div class="fields-row handover-quantity-fields">
+            @foreach(['ordered_quantity' => 'Jumlah dipesan', 'received_good_quantity' => 'Jumlah diterima kondisi baik', 'received_damaged_quantity' => 'Jumlah diterima kondisi rusak'] as $quantityField => $quantityLabel)
+                @php($quantityValue = is_numeric($itemData[$quantityField] ?? null) ? $itemData[$quantityField] : '')
+                <div class="field"><label for="{{ $quantityField }}-{{ $itemKey }}">{{ $quantityLabel }}</label><input type="number" id="{{ $quantityField }}-{{ $itemKey }}" name="items[{{ $itemKey }}][{{ $quantityField }}]" value="{{ $quantityValue }}" min="0" max="999999999.999" step="0.001" placeholder="Belum diisi"></div>
+            @endforeach
+        </div>
+        <small>Isi sesuai satuan barang pada nota. Masukkan 0 jika tidak ada; kolom kosong tetap kosong saat dicetak.</small>
+    </fieldset>
     <p class="item-removal-message" hidden>Item dan semua fotonya akan dihapus saat perubahan disimpan.</p>
     <div class="upload-zone item-upload-zone"><span class="upload-icon"><x-icon name="upload" size="24"/></span><strong>Tambahkan foto untuk item ini</strong><p>JPG, PNG, WebP · Maksimal 5 MB/foto</p><button type="button" class="button secondary choose-item-photos">Pilih foto</button><input type="file" class="item-photo-picker" accept="image/jpeg,image/png,image/webp" multiple hidden><small>Setiap foto memiliki kolom keterangan sendiri. Foto bisa ditambahkan nanti.</small></div>
     <div class="photo-editor-list item-photo-list">

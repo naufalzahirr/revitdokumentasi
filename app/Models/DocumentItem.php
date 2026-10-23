@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentItem extends Model
 {
-    protected $fillable = ['name'];
+    public const EDITABLE_FIELDS = ['name', 'ordered_quantity', 'received_good_quantity', 'received_damaged_quantity'];
+
+    protected $fillable = self::EDITABLE_FIELDS;
+
+    protected function casts(): array
+    {
+        return ['ordered_quantity' => 'float', 'received_good_quantity' => 'float', 'received_damaged_quantity' => 'float'];
+    }
 
     public function document(): BelongsTo
     {

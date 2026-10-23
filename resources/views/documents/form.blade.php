@@ -22,6 +22,7 @@
             </div>
         </section>
         @include('documents.partials.items-form')
+        @include('documents.partials.handover-form')
         @include('documents.partials.payment-form')
         <div class="form-actions"><span class="muted small">Kolom bertanda <span class="required-star">*</span> wajib diisi.</span><div><a class="button secondary" href="{{ $document->exists ? route('documents.show', $document) : route('documents.index') }}">Batal</a><button class="button primary" type="submit"><x-icon name="check" size="18"/>{{ $document->exists ? 'Simpan perubahan' : 'Simpan nota' }}</button></div></div>
     </div><aside class="form-aside"><div class="guide-card"><span class="guide-icon"><x-icon name="file" size="26"/></span><h3>Satu nota,<br>cerita yang lengkap.</h3><p>Satu nota berisi beberapa item. Setiap item memiliki foto dan keterangannya sendiri.</p><hr><div class="guide-step"><span>1</span><p>Isi kategori dan identitas nota.</p></div><div class="guide-step"><span>2</span><p>Tambahkan item, lalu pilih foto untuk setiap item.</p></div><div class="guide-step"><span>3</span><p>Simpan sekarang. Buka lagi untuk melengkapi atau mencetak.</p></div><div class="guide-bottom"><x-icon name="print" size="17"/>Format A4 · 2 foto per halaman</div></div></aside></div>
